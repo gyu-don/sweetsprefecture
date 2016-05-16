@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <script type="text/javascript" src="jquery-2.2.3.min.js"></script>
+    <script type="text/javascript" src="jquery.japan-map.min.js"></script>
+    <script type="text/javascript" src="japanmap_pref_reverse.js"></script>
+    <script type="text/javascript">
+function shopdataFromJson(jsonurl){
+  var detail = $("<div>");
+  var map = $("<div>");
+  var anchor = $("<a>");
+
+  $.getJSON(jsonurl, function(json){
+    var available = [];
+    var dl = $("<dl>");
+    anchor.attr("href", json.url).text(json.name);
+    $.each(json.shops, function(i, v){
+      dl.append($("<dt>").text(v.name));
+      dl.append($("<dd>").text(v.address));
+      if(available.indexOf(japanmap_pref_reverse[v.pref]) == -1){
+        available.push(japanmap_pref_reverse[v.pref]);
+      }
+    });
+    var not_available = [];
+    for(var i=1;i<=47;i++) if(not_available.indexOf(i) == -1) not_available.push(i);
+    var areas = [{"code": 1, "name": "店あり", "color": "#ff0000", "prefectures": available},
+      {"code": 2, "name": "店なし", "prefectures": not_available}];
+    detail.append(dl);
+    map.japanMap({width: 400, movesIslands: true, areas: areas});
+  });
+  return [map, detail, anchor];
+}
+
+$(function(){
+  var shoplist = $("#shop");
+  var elem = $("#main");
+
+  shoplist.append($("<option>").text("選択してください").val(""));
+  $.getJSON("shoplist.json", function(json){
+    $.each(json, function(i, shop){
+      shoplist.append($("<option>").text(shop.name).val(shop.json));
+      let [map, detail, anchor] = shopdataFromJson(shop.json);
+      elem.append($("<div>").append(anchor.attr("name", shop.json)).append(map).append(detail));
+    });
+  });
+  shoplist.change(function(){
+    if($(this).val()){
+      location.href = "#" + $(this).val();
+    }
+  });
+});
+    </script>
+    <title>お菓子屋さんマップ</title>
+  </head>
+  <body>
+    <div style="position: fixed;top: 0;width: 100%"><select id="shop"></select></div>
+    <div id="main" style="padding-top: 1.5em"></div>
+  </body>
+</html>
