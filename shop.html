@@ -34,7 +34,7 @@ function shopdataFromJson(jsonurl){
     for(var i=1;i<=48;i++){
       var pref = japanmap_pref_code[i];
       if(!(pref in json.shops)) continue;
-      detail.append($("<h2>").text(pref));
+      detail.append($("<h2>").attr("id", pref).text(pref));
       var dl = $("<dl>");
       $.each(json.shops[pref], function(i, v){
         dl.append($("<dt>").text(v.name));
@@ -51,19 +51,11 @@ function shopdataFromJson(jsonurl){
       {"code": 2, "name": "店なし", "prefectures": not_available}];
     map.japanMap({width: map_width, movesIslands: true, areas: areas,
       onSelect: function(data){
-        var popup;
-        if(data.area == "店なし"){
-          popup = $("<div>").text(data.name + "には、" + json.name + "はありません。");
+        if(data.area.name == "店あり"){
+          scrollTo(0, $("#" + data.name).offset().top);
         }
-        else{
-          var ul = $("<ul>");
-          $.each(json.shops, function(i, v){
-            if(v.pref == data.name) ul.append($("<li>").text(v.name));
-          });
-          popup = $("<div>").append(ul);
-        }
-        popup.attr("data-role", "popup");
-      }});
+      }
+    });
   });
   return [map, detail, anchor];
 }
@@ -75,10 +67,6 @@ $(function(){
   $.getJSON("shoplist.json", function(json){
     $.each(json, function(i, shop){
       shoplist.append($("<option>").text(shop.name).val(shop.json));
-      /*
-      let [map, detail, anchor] = shopdataFromJson(shop.json);
-      elem.append($("<div>").append(anchor.attr("name", shop.json)).append(map).append(detail));
-      */
     });
   });
   shoplist.change(function(){
@@ -105,7 +93,7 @@ $(function(){
         上のメニューから店名を選択してください。
       </div>
       <div data-role="footer">
-        <button id="goto-top">上へ</button>
+        <button id="goto-top">ページ先頭に戻る</button>
         <a href="https://github.com/gyu-don/sweetsprefecture/blob/gh-pages/about.md">このページについて</a>
       </div>
     </div>
