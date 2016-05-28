@@ -56,3 +56,31 @@ if __name__ == '__main__':
             lambda bs: bs.find_all('div', class_='contents-inner'),
             lambda bs: (t.h2 for t in bs),
             lambda bs: (t.dd for t in bs))
+
+    scraping("ヴィタメール", "https://www.wittamer.jp/shops/",
+            lambda bs: bs.find_all("dl"),
+            lambda bs: (it.dt for it in bs
+                if excluded_words(it.dt, ("ベルギー", "Belgium", "Bruxelles"))),
+            lambda bs: (it.dd for it in bs
+                if excluded_words(it.dt, ("ベルギー", "Belgium", "Bruxelles"))))
+
+    scraping("ヨックモック", ["http://www.yokumoku.co.jp/store/district01.html",
+                    "http://www.yokumoku.co.jp/store/district02.html",
+                    "http://www.yokumoku.co.jp/store/district03.html",
+                    "http://www.yokumoku.co.jp/store/district04.html",
+                    "http://www.yokumoku.co.jp/store/district05.html",
+                    "http://www.yokumoku.co.jp/store/district06.html",
+                    "http://www.yokumoku.co.jp/store/district07.html"],
+            lambda bs: [bs for bs in (tr.find_all("td") for tr in bs.find_all("tr")) if len(bs)>2],
+            lambda bs: (a[0] for a in bs),
+            lambda bs: (a[1] for a in bs))
+
+    scraping("ケーニヒスクローネ", "http://konigs-krone.co.jp/?page_id=75",
+            lambda bs: bs.find("article", class_="product"),
+            lambda bs: bs.find_all("h3"),
+            lambda bs: (tab.find_all("td")[1] for tab in bs.find_all("table")))
+
+    scraping("ガトーフェスタハラダ", "http://www.gateaufesta-harada.com/store",
+            lambda bs: bs,
+            lambda bs: bs.find_all("h4"),
+            lambda bs: bs.find_all("span", class_="loc"))

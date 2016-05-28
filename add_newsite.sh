@@ -1,3 +1,3 @@
 #!/bin/bash
 
-awk 'BEGIN{ print "" } NR>3&&length()>0{print "   ",$0} NR>3&&length()==0{ print "" }' newsite.py >> scraper.py
+awk 'BEGIN{ c=0;print "" } c&&length()>0{print "   ",$0} c&&length()==0{ print "" } /add_newsite/{ c=1 }' newsite.py >> scraper.py
