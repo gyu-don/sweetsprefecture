@@ -38,7 +38,7 @@ if __name__ == '__main__':
             lambda bs: bs.find_all(class_='L_shop'))
 
     scraping('Quatre', 'http://www.quatre.co.jp/shop/index.html',
-            lambda bs: bs.find_all('table', class_='shop'),
+            lambda bs: [x for x in bs.find_all('table', class_='shop') if x.table],
             lambda bs: (t.td for t in bs),
             lambda bs: (t.table for t in bs))
 

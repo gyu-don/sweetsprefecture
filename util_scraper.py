@@ -123,6 +123,6 @@ def do_scraping(name, url, shoplist_finder, name_finder, address_finder):
                 })
             except:
                 status = "Failure to parse."
-    d['lastChecked'] = {'date': datetime.datetime.now().isoformat(), 'status': status}
+    d['lastChecked'] = {'date': datetime.datetime.now().isoformat()+"+09:00", 'status': status}
     update(d)
     return d
