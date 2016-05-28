@@ -99,8 +99,8 @@ def addr_filter(s):
 
 
 def do_scraping(name, url, shoplist_finder, name_finder, address_finder):
-    ls = []
-    d = {'name': name, 'url': url, 'shops': ls}
+    shops = {}
+    d = {'name': name, 'url': url, 'shops': shops}
     status = 'OK'
     if isinstance(url, str):
         url = [url]
@@ -116,10 +116,11 @@ def do_scraping(name, url, shoplist_finder, name_finder, address_finder):
                 pref = find_pref(address)
                 if not pref:
                     status = "Failure to find a prefecture."
-                ls.append({
+                    pref = "不明"
+                shops.setdefault(pref, []).append({
                     'name': name,
-                    'address': address,
-                    'pref': pref })
+                    'address': address
+                })
             except:
                 status = "Failure to parse."
     d['lastChecked'] = {'date': datetime.datetime.now().isoformat(), 'status': status}

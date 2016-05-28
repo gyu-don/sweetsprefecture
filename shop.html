@@ -2,32 +2,68 @@
 <html>
   <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="jquery.mobile-1.4.5.min.css">
+    <link rel="stylesheet" type="text/css" href="sweetsprefecture.css">
     <script type="text/javascript" src="jquery-2.2.3.min.js"></script>
+    <script type="text/javascript" src="jquery.mobile-1.4.5.min.js"></script>
     <script type="text/javascript" src="jquery.japan-map.min.js"></script>
     <script type="text/javascript" src="japanmap_pref_reverse.js"></script>
     <script type="text/javascript">
 function shopdataFromJson(jsonurl){
   var detail = $("<div>");
   var map = $("<div>");
-  var anchor = $("<a>");
+  var anchor = $("<h1>");
+  var map_width = screen.width - 30 < 400 ? screen.width - 30 : 400;
 
   $.getJSON(jsonurl, function(json){
-    var available = [];
-    var dl = $("<dl>");
-    anchor.attr("href", json.url).text(json.name);
-    $.each(json.shops, function(i, v){
-      dl.append($("<dt>").text(v.name));
-      dl.append($("<dd>").text(v.address));
-      if(available.indexOf(japanmap_pref_reverse[v.pref]) == -1){
-        available.push(japanmap_pref_reverse[v.pref]);
+
+    if(json.url.constructor !== Array){
+      anchor.append($("<a>").attr("href", json.url).text(json.name));
+    }
+    else{
+      anchor.text(json.name);
+      var small = $("<sub>");
+      for(var i=0;i<json.url.length;i++){
+        small.append(" [");
+        small.append($("<a>").attr("href", json.url[i]).text(i+1));
+        small.append("]");
       }
-    });
+      anchor.append(small);
+    }
+    for(var i=1;i<=48;i++){
+      var pref = japanmap_pref_code[i];
+      if(!(pref in json.shops)) continue;
+      detail.append($("<h2>").text(pref));
+      var dl = $("<dl>");
+      $.each(json.shops[pref], function(i, v){
+        dl.append($("<dt>").text(v.name));
+        dl.append($("<dd>").text(v.address));
+      });
+      detail.append(dl);
+    }
+    var available = [];
     var not_available = [];
-    for(var i=1;i<=47;i++) if(not_available.indexOf(i) == -1) not_available.push(i);
+    for(var i=1;i<=47;i++){
+      (japanmap_pref_code[i] in json.shops ? available : not_available).push(i);
+    }
     var areas = [{"code": 1, "name": "店あり", "color": "#ff0000", "prefectures": available},
       {"code": 2, "name": "店なし", "prefectures": not_available}];
-    detail.append(dl);
-    map.japanMap({width: 400, movesIslands: true, areas: areas});
+    map.japanMap({width: map_width, movesIslands: true, areas: areas,
+      onSelect: function(data){
+        var popup;
+        if(data.area == "店なし"){
+          popup = $("<div>").text(data.name + "には、" + json.name + "はありません。");
+        }
+        else{
+          var ul = $("<ul>");
+          $.each(json.shops, function(i, v){
+            if(v.pref == data.name) ul.append($("<li>").text(v.name));
+          });
+          popup = $("<div>").append(ul);
+        }
+        popup.attr("data-role", "popup");
+      }});
   });
   return [map, detail, anchor];
 }
@@ -36,25 +72,42 @@ $(function(){
   var shoplist = $("#shop");
   var elem = $("#main");
 
-  shoplist.append($("<option>").text("選択してください").val(""));
   $.getJSON("shoplist.json", function(json){
     $.each(json, function(i, shop){
       shoplist.append($("<option>").text(shop.name).val(shop.json));
+      /*
       let [map, detail, anchor] = shopdataFromJson(shop.json);
       elem.append($("<div>").append(anchor.attr("name", shop.json)).append(map).append(detail));
+      */
     });
   });
   shoplist.change(function(){
-    if($(this).val()){
-      location.href = "#" + $(this).val();
-    }
+    let [map, detail, anchor] = shopdataFromJson($(this).val());
+    elem.empty();
+    elem.append($("<div>").append(anchor.attr("name", shop.json)).append(map).append(detail));
+  });
+
+  $("#goto-top").click(function(){
+    scrollTo(0, 0);
   });
 });
     </script>
     <title>お菓子屋さんマップ</title>
   </head>
   <body>
-    <div style="position: fixed;top: 0;width: 100%"><select id="shop"></select></div>
-    <div id="main" style="padding-top: 1.5em"></div>
+    <div data-role="page">
+      <div data-role="header">
+        <select id="shop">
+          <option>この店、何県にあるの？</option>
+        </select>
+      </div>
+      <div id="main" data-role="content">
+        上のメニューから店名を選択してください。
+      </div>
+      <div data-role="footer">
+        <button id="goto-top">上へ</button>
+        <a href="https://github.com/gyu-don/sweetsprefecture/blob/gh-pages/about.md">このページについて</a>
+      </div>
+    </div>
   </body>
 </html>
