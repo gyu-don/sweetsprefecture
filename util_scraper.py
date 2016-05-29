@@ -40,7 +40,7 @@ def mk_major_cities():
             major_cities[pref[:-1] + '市'] = pref
     for k in list(major_cities):
         if k.endswith("市"):
-            major_cities[k[:-1] + '駅'] = pref
+            major_cities[k[:-1] + '駅'] = major_cities[k]
 
 mk_major_cities()
 
