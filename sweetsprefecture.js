@@ -1,4 +1,6 @@
 var map_width;
+var shoplist = {}
+
 function shopdataFromJson(jsonurl){
   var div = $("<div>");
 
@@ -48,10 +50,10 @@ function shopdataFromJson(jsonurl){
     });
     div.append(map).append(detail);
     var tail = $("<div>");
-    tail.text("最終確認日: " + (new Date(json.lastChecked.date)).toLocaleString());
-    if(json.lastChecked.status != "OK"){
+    tail.text("最終更新日: " + (new Date(shoplist[jsonurl].updated)).toLocaleString());
+    if(shoplist[jsonurl].status != "OK"){
       tail.text(tail.text() + "　" +
-            "一部、取得に失敗している可能性があります。 (status=" + json.lastChecked.status + ")");
+            "一部、取得に失敗している可能性があります。 (status=" + shoplist[jsonurl].status + ")");
     }
     div.append(tail);
   });
@@ -59,16 +61,17 @@ function shopdataFromJson(jsonurl){
 }
 
 $(function(){
-  var shoplist = $("#shop");
+  var shop_select = $("#shop");
   var elem = $("#main");
   map_width = screen.width - 30 < 400 ? screen.width - 30 : 400;
 
   $.getJSON("shoplist.json", function(json){
     $.each(json, function(i, shop){
-      shoplist.append($("<option>").text(shop.name).val(shop.json));
+      shoplist[shop.json] = shop;
+      shop_select.append($("<option>").text(shop.name).val(shop.json));
     });
   });
-  shoplist.change(function(){
+  shop_select.change(function(){
     elem.empty();
     elem.append(shopdataFromJson($(this).val()));
   });

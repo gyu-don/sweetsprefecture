@@ -1,8 +1,10 @@
 import os.path
 import json
+import time
 import requests
 import datetime
 import re
+from pprint import pprint
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 
@@ -62,6 +64,7 @@ def get_domain(url):
 
 
 def get_soup(url):
+    time.sleep(0.5)
     response = requests.get(url)
     html = response.text.encode(response.encoding)
     soup = BeautifulSoup(html, "lxml")
@@ -77,17 +80,16 @@ def excluded_words(s, excluded):
 
 def update(d):
     fname = 'shop/' + d['domain'] + '.json'
-    if os.path.exists(fname) and d['lastChecked']['status'] == 'OK':
+    update_required = True
+    if os.path.exists(fname):
         with open(fname) as f:
-            exists_json = json.load(f, encoding="utf-8")
-        if exists_json['shops'] == d['shops']:
-            d['lastUpdated'] = exists_json['lastUpdated']
-        else:
-            d['lastUpdated'] = d['lastChecked']
-    else:
-        d['lastUpdated'] = d['lastChecked']
-    with open(fname, "w") as f:
-        json.dump(d, f, ensure_ascii=False)
+            curr = json.load(f)
+        update_required = curr != d
+    if update_required:
+        with open(fname, "w") as f:
+            json.dump(d, f, ensure_ascii=False)
+        return True, fname
+    return False, fname
 
 
 def name_filter(s):
@@ -123,6 +125,36 @@ def do_scraping(name, url, shoplist_finder, name_finder, address_finder):
                 })
             except:
                 status = "Failure to parse."
-    d['lastChecked'] = {'date': datetime.datetime.now().isoformat()+"+09:00", 'status': status}
-    update(d)
-    return d
+    is_updated, jsonpath = update(d)
+    return status, is_updated, jsonpath, d
+
+
+class UpdateLogger:
+    def __init__(self, logname):
+        self._logname = logname
+
+    def __enter__(self):
+        self._d = {}
+        return self
+
+    def append(self, status, is_updated, jsonpath, d):
+        if not is_updated:
+            return
+        dt = datetime.datetime.now().replace(microsecond=0)
+        dtstr = dt.isoformat() + "+09:00"  # Here is Japan.
+        self._d[d["name"]] = {"name": d["name"], "json": jsonpath, "status": status, "updated": dtstr}
+
+    def __exit__(self, exception_type, exception_value, traceback):
+        if self._d:
+            with open(self._logname) as f:
+                ls = json.load(f)
+            for i in range(len(ls)):
+                shop = ls[i]
+                name = shop["name"]
+                if name in self._d:
+                    ls[i] = self._d[name]
+                    del self._d[name]
+            for v in self._d.values():
+                ls.append(v)
+            with open(self._logname, "w") as f:
+                json.dump(ls, f, ensure_ascii=False)

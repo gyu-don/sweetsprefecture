@@ -27,8 +27,8 @@ for fname in os.listdir(SHOP_DIR):
         for k in obj["shops"]:
             pref_dict[k].append(shop)
 
-with open("shoplist.json", "w") as out:
-    json.dump(ls, out, ensure_ascii=False)
+#with open("shoplist.json", "w") as out:
+#    json.dump(ls, out, ensure_ascii=False)
 
 with open("preflist.json", "w") as out:
     json.dump(pref_dict, out, ensure_ascii=False)

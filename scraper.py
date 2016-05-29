@@ -2,11 +2,15 @@
 
 from util_scraper import *
 
-def scraping(name, url, *args):
-    print('Scraping {0}\n    {1}'.format(name, url))
-    return do_scraping(name, url, *args)
 
-if __name__ == '__main__':
+with UpdateLogger("shoplist.json") as logger:
+    def scraping(name, url, *args):
+        print('Scraping {0}\n    {1}'.format(name, url))
+        status, is_updated, jsonpath, d = do_scraping(name, url, *args)
+        print(status, "\t", "Updated" if is_updated else "Not modified")
+        logger.append(status, is_updated, jsonpath, d)
+        return d
+
     scraping('銀のぶどう', 'http://www.ginnobudo.jp/index.html',
             lambda bs: bs.find('section', id='shoplist'),
             lambda bs: bs.find_all('div', class_='name'),
