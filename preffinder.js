@@ -58,7 +58,8 @@ $(function(){
       for(i=0;i<shops.length;i++){
         ul.append($("<li>").append($("<a>").text(shops[i]).attr({
           "href": "shop.html#" + namedict[shops[i]],
-          "rel": "external"})));
+          "rel": "external",
+          "target": "_blank"})));
       }
       $("#list").append(ul);
     }
