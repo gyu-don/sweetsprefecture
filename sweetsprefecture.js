@@ -74,6 +74,7 @@ $(function(){
     var hashchanged = function(){
       var hash = location.hash.replace("#", "");
       if(hash == ""){
+        shop_select.val("");
         elem.empty();
         elem.text("上のメニューから店名を選択してください。");
       }
@@ -87,7 +88,8 @@ $(function(){
     $(window).hashchange(hashchanged);
   });
   shop_select.change(function(){
-    location.hash = $(this).val();
+    if($(this).val()) location.hash = $(this).val();
+    else location.hash = "";
   });
   $("#goto-top").click(function(){
     scrollTo(0, 0);
