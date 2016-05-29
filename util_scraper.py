@@ -70,14 +70,6 @@ def get_soup(url):
     soup = BeautifulSoup(html, "lxml")
     return soup
 
-def excluded_words(s, excluded):
-    s = str(s)
-    for ex in excluded:
-        if ex in s:
-            return False
-    return True
-
-
 def update(d):
     fname = 'shop/' + d['domain'] + '.json'
     update_required = True
@@ -92,6 +84,20 @@ def update(d):
     return False, fname
 
 
+def words_filter(s, excluded):
+    s = str(s)
+    for ex in excluded:
+        if ex in s:
+            return False
+    return True
+
+def plain_text(txt):
+    class PlainText: pass
+    a = PlainText()
+    a.text = txt
+    return a
+
+
 def name_filter(s):
     return re.sub('^[●○]', '', s)
 
@@ -100,7 +106,8 @@ def addr_filter(s):
     return re.sub('(\s*(>>|VIEW|LARGE))*\s*MAP.{0,5}$', '', s)
 
 
-def do_scraping(name, url, shoplist_finder, name_finder, address_finder):
+def do_scraping(name, url, shoplist_finder, name_finder, address_finder,
+        name_postfilter=None, address_postfilter=None):
     shops = {}
     d = {'name': name, 'url': url, 'shops': shops}
     status = 'OK'
@@ -114,7 +121,11 @@ def do_scraping(name, url, shoplist_finder, name_finder, address_finder):
         for s1, s2 in zip(name_finder(t), address_finder(t)):
             try:
                 name = name_filter(s1.text.strip())
+                if name_postfilter:
+                    name = name_postfilter(name)
                 address = addr_filter(s2.text.strip())
+                if address_postfilter:
+                    address = address_postfilter(address)
                 pref = find_pref(address)
                 if not pref:
                     status = "Failure to find a prefecture."

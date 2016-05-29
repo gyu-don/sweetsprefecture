@@ -1,12 +1,13 @@
 #!/usr/bin/python3
 
+import re
 from util_scraper import *
 
 
 with UpdateLogger("shoplist.json") as logger:
-    def scraping(name, url, *args):
+    def scraping(name, url, *args, **kwargs):
         print('Scraping {0}\n    {1}'.format(name, url))
-        status, is_updated, jsonpath, d = do_scraping(name, url, *args)
+        status, is_updated, jsonpath, d = do_scraping(name, url, *args, **kwargs)
         print(status, "\t", "Updated" if is_updated else "Not modified")
         logger.append(status, is_updated, jsonpath, d)
         return d
@@ -64,9 +65,9 @@ with UpdateLogger("shoplist.json") as logger:
     scraping("ヴィタメール", "https://www.wittamer.jp/shops/",
             lambda bs: bs.find_all("dl"),
             lambda bs: (it.dt for it in bs
-                if excluded_words(it.dt, ("ベルギー", "Belgium", "Bruxelles"))),
+                if words_filter(it.dt, ("ベルギー", "Belgium", "Bruxelles"))),
             lambda bs: (it.dd for it in bs
-                if excluded_words(it.dt, ("ベルギー", "Belgium", "Bruxelles"))))
+                if words_filter(it.dt, ("ベルギー", "Belgium", "Bruxelles"))))
 
     scraping("ヨックモック", ["http://www.yokumoku.co.jp/store/district01.html",
                     "http://www.yokumoku.co.jp/store/district02.html",
@@ -88,3 +89,23 @@ with UpdateLogger("shoplist.json") as logger:
             lambda bs: bs,
             lambda bs: bs.find_all("h4"),
             lambda bs: bs.find_all("span", class_="loc"))
+
+    scraping("PABLO", "http://www.pablo3.com/shop/",
+            lambda bs: bs,
+            lambda bs: (x for x in bs.find_all("div", class_="section01_box_title")
+                if words_filter(x, ("韓国", "ソウル", "台北"))),
+            lambda bs: (x for x in bs.find_all("div", class_="section01_box_address")
+                if words_filter(x, ("韓国", "ソウル", "台北"))),
+            address_postfilter=lambda s:re.sub(r"\[email.*\*\/", "", s))
+
+    scraping("クラブハリエ", "http://clubharie.jp/corporate/shoplist/index.html",
+            lambda bs: bs,
+            lambda bs: (plain_text(x.contents[0])
+                    for x in bs.findAll("h2", class_="")),
+            lambda bs: (plain_text(x.p.contents[1])
+                    for x in bs.findAll("section", class_="adress")))
+
+    scraping("マールブランシュ", "http://www.malebranche.co.jp/shop/shopinfo.php",
+            lambda bs: bs,
+            lambda bs: bs.findAll("strong"),
+            lambda bs: (x.dd for x in bs.findAll("dl")))
