@@ -70,13 +70,31 @@ $(function(){
       shoplist[shop.json] = shop;
       shop_select.append($("<option>").text(shop.name).val(shop.json));
     });
+
+    var hashchanged = function(){
+      var hash = location.hash.replace("#", "");
+      if(hash == ""){
+        elem.empty();
+        elem.text("上のメニューから店名を選択してください。");
+      }
+      if(hash.endsWith(".json") && hash in shoplist){
+        elem.empty();
+        elem.append(shopdataFromJson(hash));
+      }
+    }
+
+    if(location.hash != "") hashchanged();
+    $(window).hashchange(hashchanged);
   });
   shop_select.change(function(){
-    elem.empty();
-    elem.append(shopdataFromJson($(this).val()));
+    location.hash = $(this).val();
   });
-
   $("#goto-top").click(function(){
     scrollTo(0, 0);
   });
+});
+
+$(document).bind("mobileinit", function(){
+  $.mobile.hashListeningEnabled = false;
+  $.mobile.pushStateEnabled = false;
 });

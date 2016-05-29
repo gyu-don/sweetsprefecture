@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="jquery.mobile-1.4.5.min.css">
+    <!-- <link rel="stylesheet" type="text/css" href="sweetsprefecture.css"> -->
+    <script type="text/javascript" src="jquery-2.2.3.min.js"></script>
+    <script type="text/javascript" src="preffinder.js"></script>
+    <!-- <script type="text/javascript" src="jquery.japan-map.min.js"></script> -->
+    <script type="text/javascript" src="jquery.mobile-1.4.5.min.js"></script>
+    <script type="text/javascript" src="japanmap_pref_reverse.js"></script>
+    <title>お菓子屋さんマップ</title>
+  </head>
+  <body>
+    <div data-role="page" id="top">
+      <div data-role="header">
+        <h1>この県にあって、あの県にない店</h1>
+        <a href="shop.html" class="ui-btn-right" rel="external">店名で検索</a>
+      </div>
+      <div data-role="content">
+        <div id="pref-plus-area">
+          <select class="pref-plus" data-inline="true"></select>
+          <span id="pref-plus-end">にあって</span>
+        </div>
+        <div id="pref-minus-area">
+          <select class="pref-minus" data-inline="true"></select>
+          <span id="pref-minus-end">にない</span>
+        </div>
+        <a href="#result" id="searchbtn" class="ui-btn ui-corner-all ui-state-disabled">検索</a>
+        <a href="#" id="resetbtn" class="ui-btn ui-corner-all">リセット</a>
+      </div>
+      <div data-role="footer" data-id="footer">
+        <!--<button id="goto-top">ページ先頭に戻る</button>-->
+        <a href="https://github.com/gyu-don/sweetsprefecture/blob/gh-pages/about.md">このページについて</a>
+      </div>
+    </div>
+    <div data-role="page" id="result">
+      <div data-role="header">
+        <a href="#" data-rel="back">戻る</a>
+        <h1>検索結果</h1>
+        <a href="shop.html" class="ui-btn-right" rel="external">店名で検索</a>
+      </div>
+      <div data-role="content">
+        <div id="query"></div>
+        <div id="list"></div>
+      </div>
+      <div data-role="footer" data-id="footer">
+        <a href="https://github.com/gyu-don/sweetsprefecture/blob/gh-pages/about.md">このページについて</a>
+      </div>
+    </div>
+  </body>
+</html>
