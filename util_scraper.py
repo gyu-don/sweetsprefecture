@@ -23,28 +23,30 @@ major_cities = {
     '水戸市': '茨城県', '宇都宮市': '栃木県', '前橋市': '群馬県', 'さいたま市': '埼玉県',
     '横浜市': '神奈川県', '金沢市': '石川県', '甲府市': '山梨県', '名古屋市': '愛知県',
     '津市': '三重県', '大津市': '滋賀県', '松江市': '島根県', '高松市': '香川県',
-    '松山市': '愛媛県', '那覇市': '沖縄県',
+    '松山市': '愛媛県', '那覇市': '沖縄県', "東京駅": "東京都"
+}
+
+minor_cities = {
     # 東京23区
     '足立区': '東京都', '荒川区': '東京都', '板橋区': '東京都', '江戸川区': '東京都',
     '大田区': '東京都', '葛飾区': '東京都', '北区': '東京都', '江東区': '東京都',
     '品川区': '東京都', '渋谷区': '東京都', '新宿区': '東京都', '杉並区': '東京都',
     '墨田区': '東京都', '世田谷区': '東京都', '台東区': '東京都', '中央区': '東京都',
     '千代田区': '東京都', '豊島区': '東京都', '中野区': '東京都', '練馬区': '東京都',
-    '文京区': '東京都', '港区': '東京都', '目黒区': '東京都'}
+    '文京区': '東京都', '港区': '東京都', '目黒区': '東京都',
+    # 他
+    '六本木': '東京都', "橿原市": "奈良県"}
 
-minor_cities = {
-    '六本木': '東京都', '東京駅': '東京都'}
-
-def mk_major_cities():
+def mk_cities():
     vals = major_cities.values()
     for pref in prefs:
         if pref not in vals:
             major_cities[pref[:-1] + '市'] = pref
     for k in list(major_cities):
         if k.endswith("市"):
-            major_cities[k[:-1] + '駅'] = major_cities[k]
+            minor_cities[k[:-1] + '駅'] = major_cities[k]
 
-mk_major_cities()
+mk_cities()
 
 def find_pref(txt):
     for pref in prefs:
@@ -91,6 +93,9 @@ def words_filter(s, excluded):
             return False
     return True
 
+def words_filter_f(excluded):
+    return lambda s: words_filter(s, excluded)
+
 def plain_text(txt):
     class PlainText: pass
     a = PlainText()
@@ -104,6 +109,10 @@ def name_filter(s):
 
 def addr_filter(s):
     return re.sub('(\s*(>>|VIEW|LARGE))*\s*MAP.{0,5}$', '', s)
+
+
+def exclude_re(regexp, flag=0):
+    return lambda s: re.sub(re.compile(regexp, flag), '', s)
 
 
 def do_scraping(name, url, shoplist_finder, name_finder, address_finder,

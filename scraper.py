@@ -109,3 +109,52 @@ with UpdateLogger("shoplist.json") as logger:
             lambda bs: bs,
             lambda bs: bs.findAll("strong"),
             lambda bs: (x.dd for x in bs.findAll("dl")))
+
+    scraping("資生堂パーラー", ["http://parlour.shiseido.co.jp/shoplist/",
+        "http://parlour.shiseido.co.jp/shoplist/area/kanto/",
+        "http://parlour.shiseido.co.jp/shoplist/area/hokkaido_tohoku/",
+        "http://parlour.shiseido.co.jp/shoplist/area/chubu/",
+        "http://parlour.shiseido.co.jp/shoplist/area/kinki_chugoku_shikoku/",
+        "http://parlour.shiseido.co.jp/shoplist/area/kyushu_okinawa/"],
+        lambda bs: bs.findAll("div", class_="section-shop")[1],
+        lambda bs: bs.findAll("p", class_="font-bold"),
+        lambda bs: bs.findAll("p", class_="address"))
+
+    scraping("ピエールマルコリーニ", "http://www.pierremarcolini.jp/shop/",
+            lambda bs: bs.find("div", class_="box510"),
+            lambda bs: (x for x in bs.find_all("span", class_="b")
+                if words_filter(x, ("ハワイ", "International"))),
+            lambda bs: bs.find_all("p"),
+            exclude_re(r"\(SHOP(\/CAFE)?\)$"),
+            exclude_re(r"^.*ADDRESS\n", re.S))
+
+    scraping("キットカット ショコラトリー", "https://nestle.jp/brand/kit/chocolatory/store.html",
+            lambda bs: bs.find("div", class_="base"),
+            lambda bs: bs.find_all("h3"),
+            lambda bs: (x.find_all("p")[1] for x in bs.find_all("div", class_="summary")))
+
+    scraping("ベルアメール", "https://www.belamer.jp/html/user_data/shop.php",
+            lambda bs: bs,
+            lambda bs: bs.find_all("div", class_="shop_name"),
+            lambda bs: bs.find_all("div", class_="shop_info"))
+
+    scraping("デメル", "http://www.demel.co.jp/company/shops.html",
+            lambda bs: bs.find_all("tr"),
+            lambda bss: (bs.th for bs in bss),
+            lambda bss: (bs.find_all("td")[1] for bs in bss))
+
+    scraping("アンテノール", "https://www.antenor.jp/shops/",
+            lambda bs: bs,
+            lambda bs: bs.find_all(attrs={"data-label": "店名"}),
+            lambda bs: bs.find_all(attrs={"data-label": "住所"}))
+
+    scraping("アンリ・シャルパンティエ", "http://www.henri-charpentier.com/shop/",
+            lambda bs: bs.find("dl", class_="storeList").find_all("h3"),
+            lambda bss: filter(words_filter_f(["デンプシーヒル"]), bss),
+            lambda bss: filter(words_filter_f(["Singapore"]),
+                    (h3.parent.findNext("li") for h3 in bss)))
+
+    scraping("ヒルバレー", "http://www.hillvalley.jp/shop/",
+            lambda bs: bs.find(id="shopArea"),
+            lambda bs: bs.find_all("h2"),
+            lambda bs: bs.find_all(class_="address"))
