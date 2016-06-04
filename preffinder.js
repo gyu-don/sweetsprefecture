@@ -38,7 +38,7 @@ $(function(){
       var v = $(this).val() - 0;
       if(v) minus.push(v);
     });
-    var plus_prefs_str = extract_to_prefs(plus).join("と");
+    var plus_prefs_str = extract_to_prefs(plus).join("か");
     var minus_prefs_str = extract_to_prefs(minus).join("や");
     var prefs_str;
     if(minus_prefs_str.length){
