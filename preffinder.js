@@ -19,7 +19,7 @@ $(function(){
     if($(this).val() >= 1){
       $("#searchbtn").removeClass("ui-state-disabled");
       var t = $("select." + $(this).attr("class").replace(/ /g, "."));
-      if(t.length == 1) append_select($(this), $("#pref-plus-end"), "と", $("#pref-plus-area"));
+      if(t.length == 1) append_select($(this), $("#pref-plus-end"), "か", $("#pref-plus-area"));
     }
     else $("#searchbtn").addClass("ui-state-disabled");
   });
